@@ -1,6 +1,7 @@
 venv/
 __pycache__/
 *.pyc
-pulsenet-ai-backend/node_modules/
-pulsenet-ai-backend/.env
-dataSepsis.csv
+pulsenet-ai-backend/
+node-backend/node_modules/
+node-backend/.env
+flask-backend/__pycache__/
