@@ -1,0 +1,9 @@
+venv/
+__pycache__/
+*.pyc
+pulsenet-ai-backend/node_modules/
+pulsenet-ai-backend/.env
+*.pt
+*.pkl
+*.h5
+dataSepsis.csv

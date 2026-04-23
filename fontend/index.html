@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>PulseNet AI — Vitals Entry</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    body { font-family: 'DM Sans', sans-serif; }
+    .status-badge { transition: all 0.2s; }
+    #toast { transition: opacity 0.4s, transform 0.4s; }
+  </style>
+</head>
+<body class="bg-slate-950 min-h-screen text-white">
+
+  <!-- Header -->
+  <header class="border-b border-slate-800 px-6 py-4 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <div class="w-9 h-9 rounded-xl bg-blue-500 flex items-center justify-center">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+        </svg>
+      </div>
+      <span class="text-xl font-bold tracking-tight">Pulse<span class="text-blue-400">Net</span> <span class="text-slate-400 font-normal text-sm ml-1">AI</span></span>
+    </div>
+    <div class="flex items-center gap-2 text-sm text-slate-400">
+      <div class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></div>
+      <span>Nurse Station</span>
+    </div>
+  </header>
+
+  <main class="max-w-5xl mx-auto px-6 py-8">
+
+    <!-- Page Title -->
+    <div class="mb-8">
+      <h1 class="text-2xl font-bold text-white">Vitals Entry</h1>
+      <p class="text-slate-400 text-sm mt-1">Record patient vitals and get AI-powered sepsis risk prediction</p>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+      <!-- Form Card -->
+      <div class="bg-slate-900 rounded-2xl border border-slate-800 overflow-hidden">
+        <div class="px-5 py-4 border-b border-slate-800 flex items-center gap-3">
+          <div class="w-8 h-8 rounded-xl bg-blue-500/10 flex items-center justify-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+            </svg>
+          </div>
+          <h2 class="font-semibold text-white">Record Vitals</h2>
+        </div>
+
+        <div class="p-5 space-y-5">
+
+          <!-- Patient Info -->
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Patient Name</label>
+              <select id="patientName" onchange="updatePatientId()" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-slate-800 text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <option value="PT-20041">Aarav Mehta</option>
+                <option value="PT-20042">Neha Gupta</option>
+                <option value="PT-20043">Ramesh Joshi</option>
+                <option value="PT-20044">Kavya Reddy</option>
+                <option value="PT-20045">Mohan Das</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Patient ID</label>
+              <div id="patientId" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-slate-800/50 text-slate-400 text-sm font-mono">PT-20041</div>
+            </div>
+          </div>
+
+          <!-- Vitals -->
+          <div class="grid grid-cols-2 gap-4">
+
+            <!-- HR -->
+            <div>
+              <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Heart Rate (bpm)</label>
+              <div class="relative">
+                <input id="hr" type="number" placeholder="e.g. 72" oninput="checkStatus('hr', 60, 100)"
+                  class="w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-slate-800 text-white text-sm placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 pr-20"/>
+                <span id="hr-badge" class="status-badge absolute right-2 top-1/2 -translate-y-1/2 text-xs font-semibold px-2 py-0.5 rounded-lg hidden"></span>
+              </div>
+            </div>
+
+            <!-- BP -->
+            <div>
+              <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Blood Pressure</label>
+              <input id="bp" type="text" placeholder="e.g. 120/80"
+                class="w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-slate-800 text-white text-sm placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"/>
+            </div>
+
+            <!-- Temp -->
+            <div>
+              <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Temperature (°F)</label>
+              <div class="relative">
+                <input id="temp" type="number" step="0.1" placeholder="e.g. 98.6" oninput="checkStatus('temp', 97, 99)"
+                  class="w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-slate-800 text-white text-sm placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 pr-20"/>
+                <span id="temp-badge" class="status-badge absolute right-2 top-1/2 -translate-y-1/2 text-xs font-semibold px-2 py-0.5 rounded-lg hidden"></span>
+              </div>
+            </div>
+
+            <!-- SpO2 -->
+            <div>
+              <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">SpO2 (%)</label>
+              <div class="relative">
+                <input id="spo2" type="number" placeholder="e.g. 98" oninput="checkStatus('spo2', 95, 100)"
+                  class="w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-slate-800 text-white text-sm placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 pr-20"/>
+                <span id="spo2-badge" class="status-badge absolute right-2 top-1/2 -translate-y-1/2 text-xs font-semibold px-2 py-0.5 rounded-lg hidden"></span>
+              </div>
+            </div>
+
+            <!-- Time -->
+            <div>
+              <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Time</label>
+              <input id="time" type="time" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-slate-800 text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"/>
+            </div>
+
+            <!-- Date -->
+            <div>
+              <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Date</label>
+              <input id="date" type="date" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-slate-800 text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"/>
+            </div>
+          </div>
+
+          <!-- Submit -->
+          <button onclick="predict()" id="submitBtn"
+            class="w-full py-3 rounded-xl bg-blue-500 hover:bg-blue-600 active:scale-95 text-white font-semibold text-sm transition-all flex items-center justify-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+            </svg>
+            Predict & Save Vitals
+          </button>
+
+          <!-- Needs more readings -->
+          <div id="needsMore" class="hidden px-4 py-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 text-sm text-center font-medium"></div>
+        </div>
+      </div>
+
+      <!-- Right Column -->
+      <div class="flex flex-col gap-6">
+
+        <!-- Result Card -->
+        <div id="resultCard" class="hidden bg-slate-900 rounded-2xl border border-slate-800 p-5">
+          <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-4">AI Prediction Result</p>
+          <div class="flex items-center gap-4 mb-4">
+            <div id="riskCircle" class="w-20 h-20 rounded-full flex flex-col items-center justify-center border-4 shrink-0">
+              <span id="riskPct" class="text-2xl font-bold"></span>
+              <span class="text-xs font-medium">Risk</span>
+            </div>
+            <div>
+              <p id="statusLabel" class="text-2xl font-bold mb-1"></p>
+              <p class="text-slate-400 text-sm">Based on last 5 readings</p>
+            </div>
+          </div>
+          <!-- Risk bar -->
+          <div class="w-full h-2 rounded-full bg-slate-800 overflow-hidden">
+            <div id="riskBar" class="h-full rounded-full transition-all duration-700"></div>
+          </div>
+          <div class="flex justify-between text-xs text-slate-500 mt-1">
+            <span>0%</span><span>50%</span><span>100%</span>
+          </div>
+        </div>
+
+        <!-- Log Table -->
+        <div class="bg-slate-900 rounded-2xl border border-slate-800 overflow-hidden flex-1">
+          <div class="px-5 py-4 border-b border-slate-800 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <div class="w-8 h-8 rounded-xl bg-teal-500/10 flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-teal-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+              </div>
+              <h2 class="font-semibold text-white">Vitals Log</h2>
+            </div>
+            <span id="logCount" class="text-xs text-slate-500 font-medium">0 entries</span>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="bg-slate-800/50">
+                  <th class="text-left px-4 py-3 text-xs font-semibold text-slate-400 uppercase tracking-wider">Patient</th>
+                  <th class="text-left px-4 py-3 text-xs font-semibold text-slate-400 uppercase tracking-wider">HR</th>
+                  <th class="text-left px-4 py-3 text-xs font-semibold text-slate-400 uppercase tracking-wider">BP</th>
+                  <th class="text-left px-4 py-3 text-xs font-semibold text-slate-400 uppercase tracking-wider">Temp</th>
+                  <th class="text-left px-4 py-3 text-xs font-semibold text-slate-400 uppercase tracking-wider">SpO2</th>
+                  <th class="text-left px-4 py-3 text-xs font-semibold text-slate-400 uppercase tracking-wider">Time</th>
+                </tr>
+              </thead>
+              <tbody id="logBody">
+                <tr>
+                  <td colspan="6" class="text-center py-10 text-slate-500 text-sm">No entries yet</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Toast -->
+  <div id="toast" class="fixed bottom-6 right-6 opacity-0 translate-y-4 pointer-events-none flex items-center gap-3 px-4 py-3 rounded-xl bg-emerald-500 text-white text-sm font-semibold shadow-xl">
+    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+    </svg>
+    Vitals recorded successfully!
+  </div>
+
+<script>
+  const patientMap = {
+    "PT-20041": "Aarav Mehta",
+    "PT-20042": "Neha Gupta",
+    "PT-20043": "Ramesh Joshi",
+    "PT-20044": "Kavya Reddy",
+    "PT-20045": "Mohan Das",
+  };
+
+  // Set defaults
+  const now = new Date();
+  document.getElementById('time').value = now.toTimeString().slice(0,5);
+  document.getElementById('date').value = now.toISOString().split('T')[0];
+
+  function updatePatientId() {
+    const sel = document.getElementById('patientName');
+    document.getElementById('patientId').textContent = sel.value;
+  }
+
+  function checkStatus(field, min, max) {
+    const val = parseFloat(document.getElementById(field).value);
+    const badge = document.getElementById(field + '-badge');
+    if (isNaN(val)) { badge.classList.add('hidden'); return; }
+    badge.classList.remove('hidden');
+    if (val >= min && val <= max) {
+      badge.textContent = 'Normal';
+      badge.className = 'status-badge absolute right-2 top-1/2 -translate-y-1/2 text-xs font-semibold px-2 py-0.5 rounded-lg bg-emerald-500/10 text-emerald-400';
+    } else if (val < min * 0.9 || val > max * 1.1) {
+      badge.textContent = 'Critical';
+      badge.className = 'status-badge absolute right-2 top-1/2 -translate-y-1/2 text-xs font-semibold px-2 py-0.5 rounded-lg bg-red-500/10 text-red-400';
+    } else {
+      badge.textContent = 'Warning';
+      badge.className = 'status-badge absolute right-2 top-1/2 -translate-y-1/2 text-xs font-semibold px-2 py-0.5 rounded-lg bg-amber-500/10 text-amber-400';
+    }
+  }
+
+  let logEntries = [];
+
+  async function loadRecords() {
+    try {
+      const res = await fetch('http://localhost:3001/records');
+      const data = await res.json();
+      logEntries = data.map(r => ({
+        patientName: r.patientName,
+        hr: r.HR, bp: r.BP, temp: r.Temp, spo2: r.SpO2, time: r.time
+      }));
+      renderLog();
+    } catch (e) {
+      console.log('Could not load records from DB');
+    }
+  }
+  loadRecords();
+
+  async function predict() {
+    const hr   = parseFloat(document.getElementById('hr').value);
+    const bp   = document.getElementById('bp').value.trim();
+    const temp = parseFloat(document.getElementById('temp').value);
+    const spo2 = parseFloat(document.getElementById('spo2').value);
+    const time = document.getElementById('time').value;
+    const date = document.getElementById('date').value;
+    const patientId = document.getElementById('patientName').value;
+    const patientName = patientMap[patientId];
+
+    if (!hr || !bp || !temp || !spo2) {
+      alert('Please fill in all vital fields.');
+      return;
+    }
+
+    // Add to log
+    logEntries.unshift({ patientName, hr, bp, temp, spo2, time });
+    renderLog();
+
+    // Call backend
+    const btn = document.getElementById('submitBtn');
+    btn.disabled = true;
+    btn.textContent = 'Predicting...';
+
+    try {
+      const res = await fetch('http://localhost:3001/predict', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ HR: hr, BP: bp, Temp: temp, SpO2: spo2, patientName, patientId, time, date })
+      });
+      const data = await res.json();
+
+      if (data.message) {
+        document.getElementById('needsMore').textContent = `⏳ ${data.message} before prediction`;
+        document.getElementById('needsMore').classList.remove('hidden');
+        document.getElementById('resultCard').classList.add('hidden');
+      } else {
+        document.getElementById('needsMore').classList.add('hidden');
+        showResult(data.result.risk, data.result.status);
+      }
+    } catch (e) {
+      document.getElementById('needsMore').textContent = '⚠️ Could not connect to backend';
+      document.getElementById('needsMore').classList.remove('hidden');
+    }
+
+    btn.disabled = false;
+    btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg> Predict & Save Vitals`;
+
+    // Clear inputs
+    ['hr','bp','temp','spo2'].forEach(id => {
+      document.getElementById(id).value = '';
+      const badge = document.getElementById(id + '-badge');
+      if (badge) badge.classList.add('hidden');
+    });
+
+    showToast();
+  }
+
+  function showResult(risk, status) {
+    const card = document.getElementById('resultCard');
+    card.classList.remove('hidden');
+
+    document.getElementById('riskPct').textContent = risk + '%';
+    document.getElementById('statusLabel').textContent = status;
+    document.getElementById('riskBar').style.width = risk + '%';
+
+    const circle = document.getElementById('riskCircle');
+    const label  = document.getElementById('statusLabel');
+    const bar    = document.getElementById('riskBar');
+
+    if (status === 'Normal') {
+      circle.className = 'w-20 h-20 rounded-full flex flex-col items-center justify-center border-4 shrink-0 border-emerald-500 text-emerald-400';
+      label.className  = 'text-2xl font-bold mb-1 text-emerald-400';
+      bar.className    = 'h-full rounded-full transition-all duration-700 bg-emerald-500';
+    } else if (status === 'Warning') {
+      circle.className = 'w-20 h-20 rounded-full flex flex-col items-center justify-center border-4 shrink-0 border-amber-500 text-amber-400';
+      label.className  = 'text-2xl font-bold mb-1 text-amber-400';
+      bar.className    = 'h-full rounded-full transition-all duration-700 bg-amber-500';
+    } else {
+      circle.className = 'w-20 h-20 rounded-full flex flex-col items-center justify-center border-4 shrink-0 border-red-500 text-red-400';
+      label.className  = 'text-2xl font-bold mb-1 text-red-400';
+      bar.className    = 'h-full rounded-full transition-all duration-700 bg-red-500';
+    }
+  }
+
+  function renderLog() {
+    const tbody = document.getElementById('logBody');
+    document.getElementById('logCount').textContent = logEntries.length + ' entries';
+    if (logEntries.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="6" class="text-center py-10 text-slate-500 text-sm">No entries yet</td></tr>';
+      return;
+    }
+    tbody.innerHTML = logEntries.map(e => {
+      const spo2Color = e.spo2 >= 95 ? 'text-emerald-400' : e.spo2 >= 90 ? 'text-amber-400' : 'text-red-400';
+      return `
+        <tr class="border-t border-slate-800 hover:bg-slate-800/30 transition-colors">
+          <td class="px-4 py-3 text-sm font-medium text-white">${e.patientName}</td>
+          <td class="px-4 py-3 text-sm font-mono text-slate-300">${e.hr}</td>
+          <td class="px-4 py-3 text-sm font-mono text-slate-300">${e.bp}</td>
+          <td class="px-4 py-3 text-sm font-mono text-slate-300">${e.temp}°F</td>
+          <td class="px-4 py-3 text-sm font-mono font-semibold ${spo2Color}">${e.spo2}%</td>
+          <td class="px-4 py-3 text-xs text-slate-500">${e.time}</td>
+        </tr>`;
+    }).join('');
+  }
+
+  function showToast() {
+    const t = document.getElementById('toast');
+    t.style.opacity = '1';
+    t.style.transform = 'translateY(0)';
+    setTimeout(() => {
+      t.style.opacity = '0';
+      t.style.transform = 'translateY(1rem)';
+    }, 3000);
+  }
+</script>
+</body>
+</html>
