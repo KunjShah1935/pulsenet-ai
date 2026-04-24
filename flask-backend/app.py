@@ -23,6 +23,10 @@ model.eval()
 
 scaler = joblib.load("scaler.pkl")
 
+@app.route("/health")
+def health():
+    return "ok"
+
 @app.route("/predict", methods=["POST"])
 def predict():
     data = request.json

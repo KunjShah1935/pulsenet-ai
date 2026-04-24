@@ -103,6 +103,8 @@ app.post("/predict", async (req, res) => {
   }
 });
 
+app.get("/health", (req, res) => res.send("ok"));
+
 // GET /records — fetch all saved records
 app.get("/records", async (req, res) => {
   try {
