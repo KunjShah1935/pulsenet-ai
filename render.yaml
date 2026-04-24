@@ -1,0 +1,36 @@
+services:
+  - type: web
+    name: pulsenet-flask
+    runtime: python
+    rootDir: flask-backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+
+  - type: web
+    name: pulsenet-node
+    runtime: node
+    rootDir: node-backend
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: FLASK_URL
+        value: https://pulsenet-flask.onrender.com   # update after flask deploys
+      - key: MONGO_URI
+        value: mongodb+srv://admin:pulse123@cluster0.jojngzo.mongodb.net/AiDataBase?appName=Cluster0
+      - key: TWILIO_ACCOUNT_SID
+        sync: false
+      - key: TWILIO_AUTH_TOKEN
+        sync: false
+      - key: TWILIO_PHONE
+        sync: false
+      - key: ALERT_PHONE
+        sync: false
+
+  - type: web
+    name: pulsenet-frontend
+    runtime: static
+    rootDir: frontend
+    staticPublishPath: .

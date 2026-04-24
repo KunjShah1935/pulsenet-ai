@@ -209,6 +209,8 @@
   </div>
 
 <script>
+  const API_URL = "https://pulsenet-ai-1.onrender.com";
+
   const patientMap = {
     "PT-20041": "Aarav Mehta",
     "PT-20042": "Neha Gupta",
@@ -248,7 +250,7 @@
 
   async function loadRecords() {
     try {
-      const res = await fetch('http://localhost:3001/records');
+      const res = await fetch(`${API_URL}/records`);
       const data = await res.json();
       logEntries = data.map(r => ({
         patientName: r.patientName,
@@ -286,7 +288,7 @@
     btn.textContent = 'Predicting...';
 
     try {
-      const res = await fetch('http://localhost:3001/predict', {
+      const res = await fetch(`${API_URL}/predict`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ HR: hr, BP: bp, Temp: temp, SpO2: spo2, patientName, patientId, time, date })
